@@ -1,17 +1,17 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const ejs = require('ejs');
+const express = require("express");
+const mongoose = require("mongoose");
+const ejs = require("ejs");
 const app = express();
 
-const Form = require('./model/form');
+const Form = require("./model/form");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 
 mongoose
   .connect(
-    'mongodb+srv://backendpro:12334455@@cluster-backend-attainu.6rqij.mongodb.net/usersData?retryWrites=true&w=majority',
+    "mongodb+srv://backendpro:12334455@@cluster-backend-attainu.6rqij.mongodb.net/usersData?retryWrites=true&w=majority",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -19,24 +19,36 @@ mongoose
       useFindAndModify: false,
     }
   )
-  .then(() => console.log('Database connected!'))
+  .then(() => console.log("Database connected!"))
   .catch((err) => {
-    console.log('ERROR OCCURRED ', err.message);
+    console.log("ERROR OCCURRED ", err.message);
   });
 
 // ROUTE HANDLING
-app.get('/', (req, res) => {
-  res.render('form');
+app.get("/", (req, res) => {
+  res.render("form");
 });
 
-app.post('/form', async (req, res) => {
+app.get("/data", async (req, res) => {
+  try {
+    const data = await Form.find();
+    res.json({
+      registeredUsers: data.length,
+      data,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.post("/form", async (req, res) => {
   try {
     const formSubmitted = await Form.create(req.body);
     if (formSubmitted) {
-      res.render('submitted');
+      res.render("submitted");
     } else {
-      console.log('Not submitted');
-      res.redirect('/');
+      console.log("Not submitted");
+      res.redirect("/");
     }
   } catch (err) {
     console.log(err.message);
